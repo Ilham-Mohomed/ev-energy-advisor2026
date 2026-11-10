@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "EV Energy Advisor",
@@ -5,15 +6,26 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
+    "icon": "./icon.png",
+    "splash": {
+      "image": "./icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#061B3A"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ilham.evenergyadvisorfresh"
     },
     "android": {
-      "package": "com.ilham.evenergyadvisorfresh"
+      "package": "com.ilham.evenergyadvisorfresh",
+      "adaptiveIcon": {
+        "foregroundImage": "./icon.png",
+        "backgroundColor": "#061B3A"
+      }
     },
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./icon.png"
     }
   }
 }
