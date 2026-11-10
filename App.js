@@ -30,12 +30,8 @@ const scenarios=[
 const n=v=>Number(v)||0;
 const rs=v=>"Rs. "+Number(v).toFixed(2);
 
-// UPDATED FIELD COMPONENT
 function Field({
-  label,
-  value,
-  onChange,
-  unit,
+  label,value,onChange,unit,
   keyboardType="default",
   secureTextEntry=false,
   autoCapitalize="sentences"
@@ -51,6 +47,9 @@ function Field({
           secureTextEntry={secureTextEntry}
           autoCapitalize={autoCapitalize}
           autoCorrect={false}
+          placeholder="Enter value"
+          placeholderTextColor="#607487"
+          selectionColor="#5CE6C3"
           style={s.input}
         />
         {unit?<Text style={s.unit}>{unit}</Text>:null}
@@ -59,21 +58,43 @@ function Field({
   );
 }
 
-function Btn({title,onPress,secondary}) {
+function Btn({title,onPress,secondary,disabled}) {
   return (
     <TouchableOpacity
+      activeOpacity={0.75}
       onPress={onPress}
-      style={[s.btn,secondary&&s.btn2]}
+      disabled={disabled}
+      style={[
+        s.btn,
+        secondary&&s.btn2,
+        disabled&&s.btnDisabled
+      ]}
     >
-      <Text style={[s.btntext,secondary&&{color:"#DCE8F2"}]}>
+      <Text style={[
+        s.btntext,
+        secondary&&s.btntext2
+      ]}>
         {title}
       </Text>
     </TouchableOpacity>
   );
 }
 
-function Card({children}) {
-  return <View style={s.card}>{children}</View>;
+function Card({children,highlight}) {
+  return (
+    <View style={[
+      s.card,
+      highlight&&s.highlightCard
+    ]}>
+      {children}
+    </View>
+  );
+}
+
+function SectionTitle({children}) {
+  return (
+    <Text style={s.heading}>{children}</Text>
+  );
 }
 
 export default function App() {
@@ -142,7 +163,6 @@ export default function App() {
     },1200);
   };
 
-  // NUMERICAL INPUT FIELDS
   const field=(label,key,unit,source="ev")=>(
     <Field
       label={label}
@@ -160,15 +180,30 @@ export default function App() {
     "Results"
   ];
 
+  const navIcons={
+    Home:"⌂",
+    Profile:"◉",
+    "EV Details":"ϟ",
+    Utility:"▦",
+    Results:"▤"
+  };
+
   if(!signed) {
     return (
       <SafeAreaView style={s.safe}>
-        <StatusBar barStyle="light-content"/>
+        <StatusBar barStyle="light-content" backgroundColor="#070B13"/>
 
-        <ScrollView contentContainerStyle={s.login}>
-          <Text style={s.bolt}>⚡</Text>
+        <ScrollView
+          contentContainerStyle={s.login}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={s.logoCircle}>
+            <Text style={s.bolt}>ϟ</Text>
+          </View>
+
           <Text style={s.brand}>EV ENERGY</Text>
           <Text style={s.greenbrand}>ADVISOR</Text>
+
           <Text style={s.sub}>
             Smarter V2G and V2H decisions
           </Text>
@@ -178,36 +213,38 @@ export default function App() {
               {signup?"Create account":"Welcome back"}
             </Text>
 
-            <Text style={s.label}>Account type</Text>
+            <Text style={s.label}>ACCOUNT TYPE</Text>
 
             <View style={s.roles}>
               {["Customer","Utility Officer"].map(x=>(
                 <TouchableOpacity
+                  activeOpacity={0.75}
                   key={x}
                   onPress={()=>setRole(x)}
-                  style={[s.role,role===x&&s.selected]}
+                  style={[
+                    s.role,
+                    role===x&&s.selected
+                  ]}
                 >
-                  <Text style={{
-                    color:role===x?"#55E6B8":"#B7C5D3"
-                  }}>
+                  <Text style={[
+                    s.roleText,
+                    role===x&&s.roleTextActive
+                  ]}>
                     {x}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
-            {/* TEXT INPUTS - KEYBOARD FIXED */}
-
             <Field
               label="Full name"
               value={profile.name}
               onChange={v=>set(setProfile,"name",v)}
-              keyboardType="default"
               autoCapitalize="words"
             />
 
             <Field
-              label="Email"
+              label="Email address"
               value={profile.email}
               onChange={v=>set(setProfile,"email",v)}
               keyboardType="email-address"
@@ -218,13 +255,12 @@ export default function App() {
               label="Password"
               value={password}
               onChange={setPassword}
-              keyboardType="default"
               secureTextEntry={true}
               autoCapitalize="none"
             />
 
             <Btn
-              title={signup?"Create account":"Sign in"}
+              title={signup?"Create account  →":"Sign in  →"}
               onPress={()=>{
                 if(role){
                   setSigned(true);
@@ -243,6 +279,10 @@ export default function App() {
               Prototype sign-in only. Secure authentication and cloud account storage must be connected before public deployment.
             </Text>
           </Card>
+
+          <Text style={s.footer}>
+            POWERING A SMARTER ENERGY FUTURE
+          </Text>
         </ScrollView>
       </SafeAreaView>
     );
@@ -250,50 +290,77 @@ export default function App() {
 
   return (
     <SafeAreaView style={s.safe}>
-      <StatusBar barStyle="light-content"/>
+      <StatusBar barStyle="light-content" backgroundColor="#070B13"/>
 
       <View style={s.top}>
         <View>
           <Text style={s.topbrand}>
-            EV <Text style={{color:"#4CE0B1"}}>ENERGY</Text>
+            EV <Text style={s.topbrandGreen}>ENERGY</Text>
           </Text>
-          <Text style={s.note}>{role} workspace</Text>
+          <Text style={s.workspace}>{role} workspace</Text>
         </View>
 
-        <TouchableOpacity onPress={()=>{
-          setSigned(false);
-          setRole("");
-        }}>
-          <Text style={s.green}>Sign out</Text>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={s.signout}
+          onPress={()=>{
+            setSigned(false);
+            setRole("");
+          }}
+        >
+          <Text style={s.signoutText}>↗ Sign out</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={s.content}>
+      <ScrollView
+        contentContainerStyle={s.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
 
         {tab==="Home"&&<>
           <View style={s.hero}>
-            <Text style={s.green}>
-              ENERGY INTELLIGENCE PLATFORM
-            </Text>
+            <View style={s.heroTag}>
+              <View style={s.liveDot}/>
+              <Text style={s.heroTagText}>
+                ENERGY INTELLIGENCE PLATFORM
+              </Text>
+            </View>
+
             <Text style={s.herotitle}>
-              Make every{"\n"}kilowatt count.
+              Make every{"\n"}
+              <Text style={s.heroAccent}>kilowatt count.</Text>
             </Text>
+
             <Text style={s.herotext}>
               Compare six V2G and V2H pathways using your EV, tariff and cost assumptions.
             </Text>
+
+            <View style={s.heroBottom}>
+              <Text style={s.heroBottomText}>SMART ENERGY ANALYSIS</Text>
+              <Text style={s.heroSymbol}>ϟ</Text>
+            </View>
           </View>
 
-          <Text style={s.heading}>
-            Scenario spotlight · changes every 10 seconds
-          </Text>
+          <View style={s.sectionHeader}>
+            <Text style={s.sectionLabel}>EXPLORE</Text>
+            <Text style={s.sectionHint}>01 / 06</Text>
+          </View>
 
-          <Card>
-            <Text style={s.green}>
-              {scenarios[slide].id} · {scenarios[slide].type}
-            </Text>
+          <Card highlight>
+            <View style={s.rowBetween}>
+              <Text style={s.green}>
+                {scenarios[slide].id}  ·  {scenarios[slide].type}
+              </Text>
+              <View style={s.scenarioBadge}>
+                <Text style={s.scenarioBadgeText}>SCENARIO</Text>
+              </View>
+            </View>
+
             <Text style={s.scenario}>
               {scenarios[slide].name}
             </Text>
+
             <Text style={s.herotext}>
               {scenarios[slide].desc}
             </Text>
@@ -303,28 +370,51 @@ export default function App() {
                 <TouchableOpacity
                   key={x.id}
                   onPress={()=>setSlide(i)}
-                  style={[s.dot,i===slide&&s.doton]}
+                  style={[
+                    s.dot,
+                    i===slide&&s.doton
+                  ]}
                 />
               ))}
             </View>
           </Card>
 
+          <View style={s.sectionHeader}>
+            <Text style={s.sectionLabel}>YOUR ENERGY SNAPSHOT</Text>
+            <Text style={s.sectionHint}>CURRENT INPUTS</Text>
+          </View>
+
           <View style={s.twocol}>
             <Card>
+              <Text style={s.statIcon}>▣</Text>
               <Text style={s.note}>BATTERY CAPACITY</Text>
-              <Text style={s.stat}>{ev.battery} kWh</Text>
+              <Text style={s.stat}>{ev.battery}</Text>
+              <Text style={s.statUnit}>kWh</Text>
             </Card>
 
             <Card>
+              <Text style={s.statIcon}>ϟ</Text>
               <Text style={s.note}>DAILY ENERGY</Text>
-              <Text style={s.stat}>{ev.daily} kWh</Text>
+              <Text style={s.stat}>{ev.daily}</Text>
+              <Text style={s.statUnit}>kWh / day</Text>
             </Card>
           </View>
 
-          <Btn
-            title={busy?"Analysing scenarios…":"Find Best Scenario →"}
-            onPress={find}
-          />
+          <View style={s.analysisCard}>
+            <Text style={s.analysisEyebrow}>READY TO ANALYSE?</Text>
+            <Text style={s.analysisTitle}>
+              Discover your best energy pathway.
+            </Text>
+            <Text style={s.herotext}>
+              Evaluate all six scenarios with your current assumptions.
+            </Text>
+
+            <Btn
+              title={busy?"Analysing scenarios…":"Find Best Scenario  →"}
+              onPress={find}
+              disabled={busy}
+            />
+          </View>
 
           <Text style={s.note}>
             Complete your EV and cost assumptions before analysis.
@@ -332,10 +422,13 @@ export default function App() {
         </>}
 
         {tab==="Profile"&&<>
-          <Text style={s.title}>Profile details</Text>
+          <Text style={s.title}>Your profile</Text>
+          <Text style={s.pageSubtitle}>
+            Manage your personal and account information.
+          </Text>
 
           <Card>
-            <Text style={s.heading}>Personal information</Text>
+            <SectionTitle>Personal information</SectionTitle>
 
             <Field
               label="Full name"
@@ -345,7 +438,7 @@ export default function App() {
             />
 
             <Field
-              label="Email"
+              label="Email address"
               value={profile.email}
               onChange={v=>set(setProfile,"email",v)}
               keyboardType="email-address"
@@ -371,10 +464,13 @@ export default function App() {
         </>}
 
         {tab==="EV Details"&&<>
-          <Text style={s.title}>EV & tariff details</Text>
+          <Text style={s.title}>EV & tariffs</Text>
+          <Text style={s.pageSubtitle}>
+            Configure vehicle, operating and tariff assumptions.
+          </Text>
 
           <Card>
-            <Text style={s.heading}>Vehicle & operation</Text>
+            <SectionTitle>Vehicle & operation</SectionTitle>
             {field("Battery capacity","battery","kWh")}
             {field("Daily discharged energy","daily","kWh/day")}
             {field("Operating days","days","days/year")}
@@ -382,7 +478,7 @@ export default function App() {
           </Card>
 
           <Card>
-            <Text style={s.heading}>Financial assumptions</Text>
+            <SectionTitle>Financial assumptions</SectionTitle>
             {field("Analysis period","years","years")}
             {field("Discount rate","discount","%")}
             {field("Annual escalation","escalation","%")}
@@ -391,38 +487,39 @@ export default function App() {
           </Card>
 
           <Card>
-            <Text style={s.heading}>Home TOU tariff</Text>
+            <SectionTitle>Home TOU tariff</SectionTitle>
             {field("Peak","homePeak","Rs./kWh")}
             {field("Day","homeDay","Rs./kWh")}
             {field("Off-peak","homeOff","Rs./kWh")}
           </Card>
 
           <Card>
-            <Text style={s.heading}>Station retail tariff</Text>
+            <SectionTitle>Station retail tariff</SectionTitle>
             {field("Peak","stationPeak","Rs./kWh")}
             {field("Day","stationDay","Rs./kWh")}
             {field("Off-peak","stationOff","Rs./kWh")}
           </Card>
 
           <Btn
-            title="Save EV details"
+            title="Save EV details  ✓"
             onPress={()=>setTab("Home")}
           />
         </>}
 
         {tab==="Utility"&&<>
-          <Text style={s.title}>Utility configuration</Text>
+          <Text style={s.title}>Utility settings</Text>
+          <Text style={s.pageSubtitle}>
+            Configure the economic assumptions for your analysis.
+          </Text>
 
           <Card>
-            <Text style={s.heading}>Utility assumptions</Text>
+            <SectionTitle>Utility assumptions</SectionTitle>
             {field("Utility energy-cost proxy","energyCost","Rs./kWh","u")}
             {field("Avoided peak-system value","avoided","Rs./kWh","u")}
           </Card>
 
           <Card>
-            <Text style={s.heading}>
-              Annual costs required for BEP
-            </Text>
+            <SectionTitle>Annual costs for BEP</SectionTitle>
 
             {field("Prosumer annual fixed cost","pFixed","Rs./year","u")}
             {field("Prosumer annual variable cost","pVariable","Rs./year","u")}
@@ -435,50 +532,63 @@ export default function App() {
           </Card>
 
           <Btn
-            title="Save utility settings"
+            title="Save utility settings  ✓"
             onPress={()=>setTab("Home")}
           />
         </>}
 
         {tab==="Results"&&<>
-          <Text style={s.title}>Scenario analysis</Text>
-
-          <Text style={s.herotext}>
-            Ranked comparison using the currently entered assumptions.
+          <Text style={s.title}>Analysis results</Text>
+          <Text style={s.pageSubtitle}>
+            Compare the six V2G and V2H scenarios.
           </Text>
 
           {!results?
             <Card>
+              <Text style={s.emptyIcon}>ϟ</Text>
+              <Text style={s.scenario}>No analysis yet</Text>
               <Text style={s.herotext}>
-                Run an analysis to see the results.
+                Run an analysis to see your scenario comparison.
               </Text>
               <Btn
-                title="Find Best Scenario"
+                title="Find Best Scenario  →"
                 onPress={find}
               />
             </Card>
           :
             <>
-              <Card>
+              <Card highlight>
                 <Text style={s.green}>
-                  TOP MATCH · INDICATIVE RANKING
+                  ★  TOP MATCH · INDICATIVE RANKING
                 </Text>
+
                 <Text style={s.herotitle}>
                   {results[0].id} · {results[0].type}
                 </Text>
+
                 <Text style={s.scenario}>
                   {results[0].name}
                 </Text>
+
                 <Text style={s.herotext}>
                   {results[0].desc}
                 </Text>
               </Card>
 
+              <Text style={s.sectionLabel}>
+                SCENARIO COMPARISON
+              </Text>
+
               {results.map((r,i)=>(
                 <Card key={r.id}>
-                  <Text style={s.green}>
-                    {i+1}. {r.id} · {r.type}
-                  </Text>
+                  <View style={s.rowBetween}>
+                    <Text style={s.green}>
+                      {r.id} · {r.type}
+                    </Text>
+                    <Text style={s.rank}>
+                      RANK #{i+1}
+                    </Text>
+                  </View>
 
                   <Text style={s.scenario}>{r.name}</Text>
 
@@ -491,17 +601,24 @@ export default function App() {
                       Enter all four annual cost inputs in Utility to calculate BEPs and BEP gap.
                     </Text>
                   :
-                    <>
-                      <Text style={s.herotext}>
-                        Prosumer BEP: {rs(r.pb)}/kWh
-                      </Text>
-                      <Text style={s.herotext}>
-                        Utility BEP: {rs(r.ub)}/kWh
-                      </Text>
-                      <Text style={s.green}>
-                        BEP gap: {rs(r.gap)}/kWh
-                      </Text>
-                    </>
+                    <View style={s.resultValues}>
+                      <View style={s.resultLine}>
+                        <Text style={s.resultLabel}>Prosumer BEP</Text>
+                        <Text style={s.resultValue}>{rs(r.pb)}/kWh</Text>
+                      </View>
+
+                      <View style={s.resultLine}>
+                        <Text style={s.resultLabel}>Utility BEP</Text>
+                        <Text style={s.resultValue}>{rs(r.ub)}/kWh</Text>
+                      </View>
+
+                      <View style={s.resultDivider}/>
+
+                      <View style={s.resultLine}>
+                        <Text style={s.green}>BEP gap</Text>
+                        <Text style={s.resultGreen}>{rs(r.gap)}/kWh</Text>
+                      </View>
+                    </View>
                   }
                 </Card>
               ))}
@@ -511,7 +628,7 @@ export default function App() {
               </Text>
 
               <Btn
-                title="Run analysis again"
+                title="↻  Run analysis again"
                 onPress={find}
               />
             </>
@@ -522,15 +639,25 @@ export default function App() {
       <View style={s.nav}>
         {nav.map(x=>(
           <TouchableOpacity
+            activeOpacity={0.7}
             key={x}
             onPress={()=>setTab(x)}
+            style={[
+              s.navItem,
+              tab===x&&s.navItemActive
+            ]}
           >
             <Text style={[
-              s.navtext,
-              tab===x&&s.green
+              s.navIcon,
+              tab===x&&s.navIconActive
             ]}>
-              {({Home:"⌂",Profile:"◉","EV Details":"⚡",Utility:"▦",Results:"▤"})[x]}
-              {"\n"}
+              {navIcons[x]}
+            </Text>
+
+            <Text style={[
+              s.navtext,
+              tab===x&&s.navtextActive
+            ]}>
               {x}
             </Text>
           </TouchableOpacity>
@@ -541,42 +668,561 @@ export default function App() {
 }
 
 const s=StyleSheet.create({
-  safe:{flex:1,backgroundColor:"#071321"},
-  login:{flexGrow:1,justifyContent:"center",padding:22},
-  bolt:{fontSize:42,textAlign:"center",color:"#52E2B4"},
-  brand:{fontSize:27,fontWeight:"900",letterSpacing:3,color:"#F4F8FC",textAlign:"center"},
-  greenbrand:{fontSize:27,fontWeight:"900",letterSpacing:3,color:"#4CE0B1",textAlign:"center"},
-  sub:{color:"#9DB0C3",textAlign:"center",margin:14,marginBottom:25},
-  top:{backgroundColor:"#0B1B2B",padding:15,flexDirection:"row",justifyContent:"space-between",alignItems:"center"},
-  topbrand:{fontSize:18,fontWeight:"900",color:"#F3F8FC"},
-  content:{padding:16,paddingBottom:30},
-  hero:{backgroundColor:"#10413C",borderRadius:22,padding:22,marginBottom:18},
-  herotitle:{fontSize:32,fontWeight:"900",color:"#F4FAF8",marginTop:10},
-  herotext:{color:"#B5C9C8",fontSize:12,lineHeight:19,marginTop:8},
-  heading:{fontSize:16,fontWeight:"800",color:"#F4F8FC",marginBottom:12},
-  title:{fontSize:27,fontWeight:"900",color:"#F4F8FC",marginVertical:12},
-  card:{backgroundColor:"#102337",borderColor:"#233C52",borderWidth:1,borderRadius:16,padding:16,marginBottom:12},
-  best:{backgroundColor:"#10413C",borderColor:"#26765F"},
-  scenario:{fontSize:21,fontWeight:"900",color:"#F2F7FC",marginTop:10},
-  green:{color:"#54E1B4",fontWeight:"900"},
-  note:{fontSize:10,color:"#8195A9",lineHeight:16,marginTop:8},
-  field:{marginBottom:13},
-  label:{color:"#A8B9C9",fontSize:12,marginBottom:6},
-  inputrow:{backgroundColor:"#091A2A",borderWidth:1,borderColor:"#294156",borderRadius:10,paddingHorizontal:10,flexDirection:"row",alignItems:"center"},
-  input:{color:"#F3F7FC",paddingVertical:11,flex:1},
-  unit:{color:"#54DDB3",fontSize:10},
-  btn:{backgroundColor:"#43D9A9",padding:15,borderRadius:12,alignItems:"center",marginTop:10},
-  btn2:{backgroundColor:"#1A3045",borderWidth:1,borderColor:"#38536B"},
-  btntext:{color:"#06251E",fontWeight:"900"},
-  roles:{flexDirection:"row",gap:8,marginBottom:14},
-  role:{flex:1,padding:12,borderWidth:1,borderColor:"#294156",borderRadius:10,alignItems:"center"},
-  selected:{borderColor:"#43D9A9",backgroundColor:"#123B37"},
-  stat:{fontSize:20,fontWeight:"900",color:"#F4F8FC",marginTop:6},
-  twocol:{flexDirection:"row",gap:10},
-  dots:{flexDirection:"row",gap:7,marginTop:17},
-  dot:{width:7,height:7,borderRadius:8,backgroundColor:"#587083"},
-  doton:{width:23,backgroundColor:"#4CE0B1"},
-  nav:{flexDirection:"row",justifyContent:"space-around",paddingTop:10,paddingBottom:Platform.OS==="ios"?17:9,backgroundColor:"#0B1B2B",borderTopWidth:1,borderColor:"#23384D"},
-  navtext:{color:"#8FA2B6",fontSize:10,textAlign:"center",fontWeight:"700"},
-  warning:{color:"#F3C978",fontSize:12,marginTop:10}
+  safe:{
+    flex:1,
+    backgroundColor:"#070B13"
+  },
+
+  login:{
+    flexGrow:1,
+    justifyContent:"center",
+    padding:22,
+    paddingTop:35,
+    paddingBottom:35
+  },
+
+  logoCircle:{
+    width:76,
+    height:76,
+    borderRadius:26,
+    backgroundColor:"#123A38",
+    borderWidth:1,
+    borderColor:"#2B7166",
+    alignSelf:"center",
+    alignItems:"center",
+    justifyContent:"center",
+    marginBottom:17
+  },
+
+  bolt:{
+    fontSize:46,
+    fontWeight:"900",
+    color:"#5CE6C3"
+  },
+
+  brand:{
+    fontSize:27,
+    fontWeight:"900",
+    letterSpacing:3,
+    color:"#F4F8FC",
+    textAlign:"center"
+  },
+
+  greenbrand:{
+    fontSize:27,
+    fontWeight:"900",
+    letterSpacing:3,
+    color:"#5CE6C3",
+    textAlign:"center"
+  },
+
+  sub:{
+    color:"#91A4B8",
+    textAlign:"center",
+    marginTop:12,
+    marginBottom:28,
+    fontSize:13
+  },
+
+  top:{
+    backgroundColor:"#0B111D",
+    paddingHorizontal:19,
+    paddingVertical:15,
+    flexDirection:"row",
+    justifyContent:"space-between",
+    alignItems:"center",
+    borderBottomWidth:1,
+    borderColor:"#1C2B3C"
+  },
+
+  topbrand:{
+    fontSize:19,
+    fontWeight:"900",
+    letterSpacing:1,
+    color:"#F3F8FC"
+  },
+
+  topbrandGreen:{
+    color:"#5CE6C3"
+  },
+
+  workspace:{
+    color:"#8296AA",
+    fontSize:10,
+    marginTop:4
+  },
+
+  signout:{
+    backgroundColor:"#172534",
+    borderWidth:1,
+    borderColor:"#304254",
+    borderRadius:12,
+    paddingHorizontal:13,
+    paddingVertical:9
+  },
+
+  signoutText:{
+    color:"#D7E5EF",
+    fontWeight:"700",
+    fontSize:11
+  },
+
+  content:{
+    padding:17,
+    paddingBottom:35
+  },
+
+  hero:{
+    backgroundColor:"#102D32",
+    borderRadius:25,
+    borderWidth:1,
+    borderColor:"#23544F",
+    padding:23,
+    marginBottom:25,
+    overflow:"hidden"
+  },
+
+  heroTag:{
+    flexDirection:"row",
+    alignItems:"center",
+    gap:8
+  },
+
+  liveDot:{
+    width:7,
+    height:7,
+    borderRadius:5,
+    backgroundColor:"#5CE6C3"
+  },
+
+  heroTagText:{
+    color:"#83DCC8",
+    fontSize:9,
+    fontWeight:"900",
+    letterSpacing:1.3
+  },
+
+  herotitle:{
+    fontSize:34,
+    fontWeight:"900",
+    color:"#F4FAF8",
+    marginTop:22,
+    lineHeight:40
+  },
+
+  heroAccent:{
+    color:"#5CE6C3"
+  },
+
+  herotext:{
+    color:"#A9BFBD",
+    fontSize:12,
+    lineHeight:20,
+    marginTop:9
+  },
+
+  heroBottom:{
+    flexDirection:"row",
+    alignItems:"center",
+    justifyContent:"space-between",
+    borderTopWidth:1,
+    borderColor:"#2B5553",
+    marginTop:22,
+    paddingTop:14
+  },
+
+  heroBottomText:{
+    color:"#83B7AE",
+    fontSize:9,
+    letterSpacing:1,
+    fontWeight:"800"
+  },
+
+  heroSymbol:{
+    color:"#5CE6C3",
+    fontSize:28,
+    fontWeight:"900"
+  },
+
+  sectionHeader:{
+    flexDirection:"row",
+    justifyContent:"space-between",
+    alignItems:"center",
+    marginBottom:12,
+    marginTop:5
+  },
+
+  sectionLabel:{
+    color:"#8DA3B7",
+    fontSize:10,
+    fontWeight:"900",
+    letterSpacing:1.2,
+    marginBottom:10
+  },
+
+  sectionHint:{
+    color:"#526A80",
+    fontSize:9,
+    fontWeight:"800"
+  },
+
+  heading:{
+    fontSize:17,
+    fontWeight:"800",
+    color:"#F4F8FC",
+    marginBottom:17
+  },
+
+  title:{
+    fontSize:29,
+    fontWeight:"900",
+    color:"#F4F8FC",
+    marginTop:12,
+    marginBottom:5
+  },
+
+  pageSubtitle:{
+    color:"#91A4B8",
+    fontSize:12,
+    lineHeight:19,
+    marginBottom:20
+  },
+
+  card:{
+    backgroundColor:"#101B2A",
+    borderColor:"#26384B",
+    borderWidth:1,
+    borderRadius:20,
+    padding:17,
+    marginBottom:13
+  },
+
+  highlightCard:{
+    backgroundColor:"#102C2D",
+    borderColor:"#28665B"
+  },
+
+  rowBetween:{
+    flexDirection:"row",
+    alignItems:"center",
+    justifyContent:"space-between"
+  },
+
+  scenarioBadge:{
+    backgroundColor:"#1B4843",
+    borderRadius:7,
+    paddingHorizontal:9,
+    paddingVertical:5
+  },
+
+  scenarioBadgeText:{
+    color:"#80DCC6",
+    fontSize:8,
+    fontWeight:"900",
+    letterSpacing:1
+  },
+
+  scenario:{
+    fontSize:21,
+    fontWeight:"900",
+    color:"#F2F7FC",
+    marginTop:11
+  },
+
+  green:{
+    color:"#5CE6C3",
+    fontWeight:"900",
+    fontSize:12
+  },
+
+  note:{
+    fontSize:10,
+    color:"#8296AA",
+    lineHeight:16,
+    marginTop:9
+  },
+
+  field:{
+    marginBottom:16
+  },
+
+  label:{
+    color:"#A9B9C9",
+    fontSize:11,
+    fontWeight:"700",
+    marginBottom:8
+  },
+
+  inputrow:{
+    backgroundColor:"#0A1320",
+    borderWidth:1,
+    borderColor:"#2B4054",
+    borderRadius:13,
+    paddingHorizontal:13,
+    flexDirection:"row",
+    alignItems:"center"
+  },
+
+  input:{
+    color:"#F3F7FC",
+    paddingVertical:13,
+    flex:1,
+    fontSize:14
+  },
+
+  unit:{
+    color:"#5CE6C3",
+    fontSize:10,
+    fontWeight:"800",
+    marginLeft:7
+  },
+
+  btn:{
+    backgroundColor:"#5CE6C3",
+    paddingVertical:16,
+    paddingHorizontal:17,
+    borderRadius:15,
+    alignItems:"center",
+    justifyContent:"center",
+    marginTop:12,
+    shadowColor:"#42D9B4",
+    shadowOffset:{width:0,height:5},
+    shadowOpacity:0.19,
+    shadowRadius:12,
+    elevation:4
+  },
+
+  btn2:{
+    backgroundColor:"#172638",
+    borderWidth:1,
+    borderColor:"#344A60",
+    shadowOpacity:0,
+    elevation:0
+  },
+
+  btnDisabled:{
+    opacity:0.6
+  },
+
+  btntext:{
+    color:"#071A19",
+    fontWeight:"900",
+    fontSize:13,
+    letterSpacing:0.2
+  },
+
+  btntext2:{
+    color:"#DCE8F2"
+  },
+
+  roles:{
+    flexDirection:"row",
+    gap:9,
+    marginTop:9,
+    marginBottom:19
+  },
+
+  role:{
+    flex:1,
+    paddingVertical:14,
+    paddingHorizontal:7,
+    borderWidth:1,
+    borderColor:"#2C4053",
+    borderRadius:13,
+    alignItems:"center",
+    backgroundColor:"#0B1522"
+  },
+
+  roleText:{
+    color:"#A8B9C9",
+    fontSize:11,
+    fontWeight:"700"
+  },
+
+  selected:{
+    borderColor:"#5CE6C3",
+    backgroundColor:"#123A36"
+  },
+
+  roleTextActive:{
+    color:"#5CE6C3"
+  },
+
+  stat:{
+    fontSize:26,
+    fontWeight:"900",
+    color:"#F4F8FC",
+    marginTop:9
+  },
+
+  statIcon:{
+    fontSize:21,
+    color:"#5CE6C3",
+    marginBottom:12
+  },
+
+  statUnit:{
+    color:"#8296AA",
+    fontSize:10,
+    marginTop:2
+  },
+
+  twocol:{
+    flexDirection:"row",
+    gap:11,
+    marginBottom:12
+  },
+
+  dots:{
+    flexDirection:"row",
+    gap:7,
+    marginTop:19
+  },
+
+  dot:{
+    width:7,
+    height:7,
+    borderRadius:8,
+    backgroundColor:"#506B70"
+  },
+
+  doton:{
+    width:25,
+    backgroundColor:"#5CE6C3"
+  },
+
+  analysisCard:{
+    backgroundColor:"#111E2D",
+    borderWidth:1,
+    borderColor:"#2B4054",
+    borderRadius:21,
+    padding:19,
+    marginTop:5
+  },
+
+  analysisEyebrow:{
+    color:"#5CE6C3",
+    fontSize:9,
+    fontWeight:"900",
+    letterSpacing:1.3
+  },
+
+  analysisTitle:{
+    color:"#F4F8FC",
+    fontSize:21,
+    fontWeight:"900",
+    lineHeight:28,
+    marginTop:10
+  },
+
+  footer:{
+    textAlign:"center",
+    color:"#506477",
+    fontSize:9,
+    letterSpacing:1.5,
+    fontWeight:"800",
+    marginTop:27
+  },
+
+  nav:{
+    flexDirection:"row",
+    justifyContent:"space-around",
+    alignItems:"center",
+    paddingTop:9,
+    paddingBottom:Platform.OS==="ios"?18:10,
+    paddingHorizontal:5,
+    backgroundColor:"#0B111D",
+    borderTopWidth:1,
+    borderColor:"#253548"
+  },
+
+  navItem:{
+    minWidth:66,
+    alignItems:"center",
+    justifyContent:"center",
+    paddingVertical:7,
+    paddingHorizontal:9,
+    borderRadius:13
+  },
+
+  navItemActive:{
+    backgroundColor:"#153832"
+  },
+
+  navIcon:{
+    color:"#8195A9",
+    fontSize:20,
+    fontWeight:"800",
+    marginBottom:3
+  },
+
+  navIconActive:{
+    color:"#5CE6C3"
+  },
+
+  navtext:{
+    color:"#8195A9",
+    fontSize:9,
+    fontWeight:"700"
+  },
+
+  navtextActive:{
+    color:"#5CE6C3"
+  },
+
+  warning:{
+    color:"#F3C978",
+    fontSize:11,
+    lineHeight:18,
+    marginTop:12
+  },
+
+  emptyIcon:{
+    fontSize:38,
+    color:"#5CE6C3",
+    fontWeight:"900"
+  },
+
+  rank:{
+    color:"#8195A9",
+    fontSize:9,
+    fontWeight:"800"
+  },
+
+  resultValues:{
+    backgroundColor:"#0A1521",
+    borderRadius:13,
+    padding:13,
+    marginTop:14
+  },
+
+  resultLine:{
+    flexDirection:"row",
+    justifyContent:"space-between",
+    alignItems:"center",
+    paddingVertical:7
+  },
+
+  resultLabel:{
+    color:"#A9B9C9",
+    fontSize:11
+  },
+
+  resultValue:{
+    color:"#F3F8FC",
+    fontSize:12,
+    fontWeight:"800"
+  },
+
+  resultDivider:{
+    height:1,
+    backgroundColor:"#293C4D",
+    marginVertical:5
+  },
+
+  resultGreen:{
+    color:"#5CE6C3",
+    fontSize:13,
+    fontWeight:"900"
+  }
 });
